@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  id          Int          @id @default(autoincrement())
+  title       String
+  artist      String?
+  bpm         Float?
+  jsonUrl     String?      // local or cloud path for JSON files
+  audioUrl    String?      // path for mp3 files
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  bpmChanges  BPMChange[]
+  notes       Note[]
+}
+
+model BPMChange {
+  id        Int      @id @default(autoincrement())
+  time      Float
+  bpm       Float
+  song      Song     @relation(fields: [songId], references: [id])
+  songId    Int
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  time      Float    // 目标时间（音符被击中的时间）
+  lane      Int
+  texture   String
+  speed     Float?
+  song      Song     @relation(fields: [songId], references: [id])
+  songId    Int
+}
